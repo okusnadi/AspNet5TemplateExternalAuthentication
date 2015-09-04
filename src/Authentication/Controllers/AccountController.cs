@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Authentication.Controllers
 {
@@ -15,7 +16,7 @@ namespace Authentication.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(string userName, string password, string returnUrl = null)
+        public async Task<IActionResult> Login(string userName, string password, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
@@ -30,7 +31,7 @@ namespace Authentication.Controllers
                     };
 
                 var id = new ClaimsIdentity(claims, "local", "name", "role");
-                Context.Authentication.SignIn("Cookies", new ClaimsPrincipal(id));
+                await Context.Authentication.SignInAsync("Cookies", new ClaimsPrincipal(id));
 
                 return RedirectToLocal(returnUrl);
             }
@@ -48,9 +49,9 @@ namespace Authentication.Controllers
             return new ChallengeResult(provider, props);
         }
 
-        public IActionResult Logoff()
+        public async Task<IActionResult> Logoff()
         {
-            Context.Authentication.SignOut();
+            await Context.Authentication.SignOutAsync("Cookies");
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
